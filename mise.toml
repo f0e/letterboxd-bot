@@ -1,3 +1,10 @@
 [tools]
 python = "latest"
 uv = "latest"
+watchexec = "latest"
+
+[tasks.dev]
+run = "watchexec --exts py -- uv run bot"
+
+[tasks.start]
+run = "uv run bot"
