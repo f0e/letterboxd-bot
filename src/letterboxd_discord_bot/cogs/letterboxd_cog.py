@@ -21,7 +21,6 @@ class LetterboxdCog(commands.Cog):
         description="Follow a Letterboxd user to get updates.",
     )
     async def follow(self, interaction: discord.Interaction, username: str):
-        """Adds a Letterboxd user to the server's follow list."""
         await interaction.response.defer()
 
         if not interaction.guild or not interaction.channel:
@@ -83,7 +82,6 @@ class LetterboxdCog(commands.Cog):
         description="Unfollow a Letterboxd user.",
     )
     async def unfollow(self, interaction: discord.Interaction, username: str):
-        """Removes a Letterboxd user from the server's follow list."""
         await interaction.response.defer()
 
         if not interaction.guild or not interaction.channel:
@@ -123,7 +121,6 @@ class LetterboxdCog(commands.Cog):
         description="List all Letterboxd users being followed.",
     )
     async def following(self, interaction: discord.Interaction):
-        """Lists all Letterboxd users this server is following."""
         await interaction.response.defer()
 
         if not interaction.guild or not interaction.channel:
@@ -168,7 +165,6 @@ class LetterboxdCog(commands.Cog):
         description="See who has watched a specific movie.",
     )
     async def whowatched(self, interaction: discord.Interaction, movie_title: str):
-        """Checks which followed users have seen a specific movie."""
         await interaction.response.defer()
 
         if not interaction.guild or not interaction.channel:
