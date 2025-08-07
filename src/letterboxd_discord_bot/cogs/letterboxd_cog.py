@@ -181,15 +181,17 @@ class LetterboxdCog(commands.Cog):
         db: Session = next(get_db())
 
         try:
-            followed_list = (
-                db.query(FollowedUser)
+            followed_usernames = set(
+                r.letterboxd_username
+                for r in db.query(FollowedUser)
                 .filter_by(
                     guild_id=interaction.guild.id,
                     channel_id=interaction.channel.id,
                 )
                 .all()
             )
-            if not followed_list:
+
+            if not followed_usernames:
                 await interaction.followup.send(
                     "This server isn't following anyone yet! Use `/follow`.",
                     ephemeral=True,
@@ -211,8 +213,20 @@ class LetterboxdCog(commands.Cog):
             movie = lb_movie.Movie(film_slug)
 
             watchers = (
-                db.query(MovieWatch).filter_by(movie_id=movie.letterboxd_id).all()
+                db.query(MovieWatch)
+                .filter(
+                    MovieWatch.movie_id == movie.letterboxd_id,
+                    MovieWatch.letterboxd_username.in_(followed_usernames),
+                )
+                .all()
             )
+
+            if not watchers:
+                await interaction.followup.send(
+                    f"Nobody's seen **{movie.title}**.",
+                    ephemeral=True,
+                )
+                return
 
             # sort by rating descending
             watchers.sort(
