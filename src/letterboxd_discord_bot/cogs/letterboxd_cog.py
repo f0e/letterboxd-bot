@@ -223,7 +223,7 @@ class LetterboxdCog(commands.Cog):
 
             if not watchers:
                 await interaction.followup.send(
-                    f"Nobody's seen **{movie.title}**.",
+                    f"Nobody's seen [**{movie.title} ({movie.year})**]({movie.url}).",
                     ephemeral=True,
                 )
                 return
