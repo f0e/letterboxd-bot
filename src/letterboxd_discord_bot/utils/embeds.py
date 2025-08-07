@@ -31,10 +31,10 @@ def create_watchers_embed(
 
         for watcher in watchers:
             if watcher.rating is not None:
+                rating_val = watcher.rating / 2  # consistency
+
                 rating_str = (
-                    f"{int(watcher.rating)}"
-                    if watcher.rating % 1 == 0
-                    else f"{watcher.rating}"
+                    f"{int(rating_val)}" if rating_val % 1 == 0 else f"{rating_val}"
                 )
                 rating_part = f" - ⭐ **{rating_str}**"
             else:
