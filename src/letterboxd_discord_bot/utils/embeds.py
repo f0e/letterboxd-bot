@@ -113,7 +113,7 @@ def create_diary_embed(
     embed = discord.Embed(
         title=diary_entry["name"],
         description=description,
-        color=discord.Color.green() if rating_val else discord.Color.red(),
+        color=discord.Color.green(),
         url=url,
     )
 
