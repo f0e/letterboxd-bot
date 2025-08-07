@@ -7,6 +7,18 @@ from letterboxdpy.core.scraper import parse_url
 
 from letterboxd_discord_bot.database import MovieWatch  # type: ignore
 
+EMOJI_STAR = "<:lb_star:1403009346492698764>"
+EMOJI_STAR_HALF = "<:lb_halfstar:1403009343867191386>"
+
+
+def get_stars(rating_out_of_10: int):
+    rating = rating_out_of_10 / 2
+
+    full_stars = int(rating)
+    half_star = 1 if (rating - full_stars) >= 0.5 else 0
+
+    return EMOJI_STAR * full_stars + EMOJI_STAR_HALF * half_star
+
 
 def create_watchers_embed(
     movie: lb_movie.Movie, watchers: list[MovieWatch]
@@ -30,26 +42,21 @@ def create_watchers_embed(
         lines = []
 
         for watcher in watchers:
+            parts = []
+
             if watcher.rating is not None:
-                rating_val = watcher.rating / 2  # consistency
+                parts.append(get_stars(watcher.rating))
 
-                rating_str = (
-                    f"{int(rating_val)}" if rating_val % 1 == 0 else f"{rating_val}"
-                )
-                rating_part = f" - ⭐ **{rating_str}**"
-            else:
-                rating_part = " - (no rating)"
-
-            liked_part = " ❤️" if watcher.liked else ""
+            if watcher.liked:
+                parts.append("❤️")
 
             if watcher.watch_date:
                 dt = datetime.datetime.strptime(watcher.watch_date, "%d %b %Y")
                 timestamp = int(dt.timestamp())
-                date_part = f" <t:{timestamp}:R>"
-            else:
-                date_part = ""
+                parts.append(f"<t:{timestamp}:R>")
 
-            line = f"• [{watcher.letterboxd_username}](https://letterboxd.com/{watcher.letterboxd_username}/){rating_part}{liked_part}{date_part}"
+            watch_info = (" - " + " ".join(parts)) if parts else ""
+            line = f"• [{watcher.letterboxd_username}](https://letterboxd.com/{watcher.letterboxd_username}/){watch_info}"
             lines.append(line)
 
         embed.description = "\n".join(lines)
@@ -73,10 +80,7 @@ def create_diary_embed(
     else:
         url = movie.url
 
-    rating_val = actions.get("rating")
-    if rating_val:
-        rating_val /= 2  # consistency
-
+    rating = actions.get("rating")
     liked = diary_entry.get("liked", False)
     date = diary_entry.get("date")
     review_text = None
@@ -88,13 +92,8 @@ def create_diary_embed(
 
     repeat_emoji = " 🔁" if actions.get("rewatched") else ""
 
-    if rating_val is not None:
-        rating_str = (
-            f"{int(rating_val)}"
-            if isinstance(rating_val, (int, float)) and rating_val % 1 == 0
-            else f"{rating_val}"
-        )
-        rating_part = f"⭐ **{rating_str}**"
+    if rating is not None:
+        rating_part = f"{get_stars(rating)}"
     else:
         rating_part = "Not rated"
 
