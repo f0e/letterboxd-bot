@@ -70,6 +70,8 @@ def create_diary_embed(
     url = actions.get("review_link")
     if url:
         url = "https://letterboxd.com" + url
+    else:
+        url = movie.url
 
     rating_val = actions.get("rating")
     if rating_val:
