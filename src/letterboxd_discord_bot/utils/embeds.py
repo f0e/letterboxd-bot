@@ -64,7 +64,7 @@ def create_diary_embed(
     print(user)
 
     actions = diary_entry.get("actions", {})
-    url = actions.get("review_link")
+    url = "https://letterboxd.com" + actions.get("review_link")
     rating_val = actions.get("rating") / 2  # consistency
     liked = diary_entry.get("liked", False)
     date = diary_entry.get("date")
