@@ -9,6 +9,7 @@ def update_user_films(db: Session, username: str):
 
     user_films = user.get_films()  # todo: modify fn to return more info - date, review url. may need to use different function?
 
+    # todo: this can def be optimised
     for movie_slug, watch in user_films["movies"].items():
         movie_id = watch["id"]
 
