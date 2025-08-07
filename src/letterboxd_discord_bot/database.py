@@ -1,5 +1,6 @@
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     DateTime,
     Integer,
     String,
@@ -31,6 +32,26 @@ class FollowedUser(Base):
             "channel_id",
             "letterboxd_username",
             name="_guild_channel_user_uc",
+        ),
+    )
+
+
+class MovieWatch(Base):
+    __tablename__ = "movie_watches"
+
+    id = mapped_column(Integer, primary_key=True)
+    movie_id = mapped_column(Integer, nullable=False)  # or should i use slug?
+    letterboxd_username = mapped_column(String, nullable=False)
+    rating = mapped_column(Integer, nullable=True)
+    liked = mapped_column(Boolean, nullable=True)
+    watch_date = mapped_column(DateTime, nullable=True)
+    # todo: review/diary entry url
+
+    __table_args__ = (
+        UniqueConstraint(
+            "movie_id",
+            "letterboxd_username",
+            name="_movie_user_uc",
         ),
     )
 

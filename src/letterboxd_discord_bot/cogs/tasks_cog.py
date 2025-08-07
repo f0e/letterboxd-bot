@@ -5,6 +5,8 @@ from letterboxdpy import movie as lb_movie  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
 from sqlalchemy.orm import Session
 
+from letterboxd_discord_bot.utils.db_actions import update_user_films
+
 from ..database import FollowedUser, get_db
 from ..utils.embeds import create_diary_embed
 
@@ -44,10 +46,14 @@ def get_diary(user: lb_user.User, last_diary_entry: datetime.date | None = None)
 class TasksCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def cog_load(self):
         self.check_new_films.start()
+        self.update_all_movie_watches.start()
 
     def cog_unload(self):
         self.check_new_films.cancel()
+        self.update_all_movie_watches.cancel()
 
     @tasks.loop(minutes=15)
     async def check_new_films(self):
@@ -97,8 +103,32 @@ class TasksCog(commands.Cog):
         db.close()
         print("Finished checking diaries")
 
+    @tasks.loop(hours=6)
+    async def update_all_movie_watches(self):  # todo: how to run this in bg? it blocks
+        print("Running scheduled update for all movie watches...")
+        db: Session = next(get_db())
+
+        try:
+            # Get all unique followed users
+            followed_users = db.query(FollowedUser.letterboxd_username).distinct().all()
+
+            for (username,) in followed_users:
+                print(f"Updating watches for user: {username}")
+
+                update_user_films(db, username)
+
+                db.commit()
+        finally:
+            db.close()
+            print("Finished updating all movie watches")
+
     @check_new_films.before_loop
     async def before_check(self):
+        """Waits until the bot is ready before starting the loop."""
+        await self.bot.wait_until_ready()
+
+    @update_all_movie_watches.before_loop
+    async def before_update_watches(self):
         """Waits until the bot is ready before starting the loop."""
         await self.bot.wait_until_ready()
 

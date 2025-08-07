@@ -1,5 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -8,7 +6,7 @@ from letterboxdpy import search as lb_search  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
 from sqlalchemy.orm import Session
 
-from ..database import FollowedUser, get_db
+from ..database import FollowedUser, MovieWatch, get_db
 from ..utils.embeds import create_watchers_embed
 
 
@@ -179,75 +177,51 @@ class LetterboxdCog(commands.Cog):
         search_results = query.get_results(max=1)["results"]
 
         db: Session = next(get_db())
-        followed_list = (
-            db.query(FollowedUser)
-            .filter_by(
-                guild_id=interaction.guild.id,
-                channel_id=interaction.channel.id,
+
+        try:
+            followed_list = (
+                db.query(FollowedUser)
+                .filter_by(
+                    guild_id=interaction.guild.id,
+                    channel_id=interaction.channel.id,
+                )
+                .all()
             )
-            .all()
-        )
-        db.close()
-        if not followed_list:
-            await interaction.followup.send(
-                "This server isn't following anyone yet! Use `/follow`.",
-                ephemeral=True,
+            if not followed_list:
+                await interaction.followup.send(
+                    "This server isn't following anyone yet! Use `/follow`.",
+                    ephemeral=True,
+                )
+                return
+
+            query = lb_search.Search(movie_title, "films")
+            search_results = query.get_results(max=1)["results"]
+
+            if not search_results:
+                await interaction.followup.send(
+                    f"Could not find a movie matching '{movie_title}'. Please try a different title or be more specific.",
+                    ephemeral=True,
+                )
+                return
+
+            film_slug = search_results[0]["slug"]
+
+            movie = lb_movie.Movie(film_slug)
+
+            watchers = (
+                db.query(MovieWatch).filter_by(movie_id=movie.letterboxd_id).all()
             )
-            return
 
-        query = lb_search.Search(movie_title, "films")
-        search_results = query.get_results(max=1)["results"]
-
-        if not search_results:
-            await interaction.followup.send(
-                f"Could not find a movie matching '{movie_title}'. Please try a different title or be more specific.",
-                ephemeral=True,
+            # sort by rating descending
+            watchers.sort(
+                key=lambda watcher: (watcher.rating is None, -(watcher.rating or 0))
             )
-            return
 
-        film_slug = search_results[0]["slug"]
+            embed = create_watchers_embed(movie, watchers)
 
-        movie = lb_movie.Movie(film_slug)
-
-        watchers = []
-
-        def check_user_watch(followed):
-            try:
-                user_obj = lb_user.User(followed.letterboxd_username)
-                user_film = user_obj.get_film(
-                    film_slug
-                )  # todo: this is already a custom function ive made, but it only works atm if they logged it to diary. need to fix!
-
-                print(followed.letterboxd_username, user_film)
-
-                if user_film:
-                    return {
-                        "username": followed.letterboxd_username,
-                        "rating": user_film.get("rating"),
-                        "liked": user_film.get("liked"),
-                        "date": user_film.get("view_date"),
-                    }
-            except Exception as e:
-                print(f"Error checking watches for {followed.letterboxd_username}: {e}")
-            return None
-
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [
-                executor.submit(check_user_watch, followed)
-                for followed in followed_list
-            ]
-
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    watchers.append(result)
-
-        # Sort by rating descending
-        watchers.sort(key=lambda w: (w["rating"] is None, -(w["rating"] or 0)))
-
-        embed = create_watchers_embed(movie, watchers)
-
-        await interaction.followup.send(embed=embed)
+            await interaction.followup.send(embed=embed)
+        finally:
+            db.close()
 
 
 async def setup(bot: commands.Bot, TEST_GUILD_ID=None):

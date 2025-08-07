@@ -3,10 +3,14 @@ import datetime
 import discord
 from letterboxdpy import movie as lb_movie  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
-from letterboxdpy.core.scraper import parse_url  # type: ignore
+from letterboxdpy.core.scraper import parse_url
+
+from letterboxd_discord_bot.database import MovieWatch  # type: ignore
 
 
-def create_watchers_embed(movie: lb_movie.Movie, watchers: list[dict]) -> discord.Embed:
+def create_watchers_embed(
+    movie: lb_movie.Movie, watchers: list[MovieWatch]
+) -> discord.Embed:
     embed = discord.Embed(
         title=movie.title,
         url=movie.url,
@@ -25,25 +29,27 @@ def create_watchers_embed(movie: lb_movie.Movie, watchers: list[dict]) -> discor
     if watchers:
         lines = []
 
-        for w in watchers:
-            if w["rating"] is not None:
+        for watcher in watchers:
+            if watcher.rating is not None:
                 rating_str = (
-                    f"{int(w['rating'])}" if w["rating"] % 1 == 0 else f"{w['rating']}"
+                    f"{int(watcher.rating)}"
+                    if watcher.rating % 1 == 0
+                    else f"{watcher.rating}"
                 )
                 rating_part = f" - ⭐ **{rating_str}**"
             else:
                 rating_part = " - (no rating)"
 
-            liked_part = " ❤️" if w["liked"] else ""
+            liked_part = " ❤️" if watcher.liked else ""
 
-            if w["date"]:
-                dt = datetime.datetime.strptime(w["date"], "%d %b %Y")
+            if watcher.watch_date:
+                dt = datetime.datetime.strptime(watcher.watch_date, "%d %b %Y")
                 timestamp = int(dt.timestamp())
                 date_part = f" <t:{timestamp}:R>"
             else:
                 date_part = ""
 
-            line = f"• [{w['username']}](https://letterboxd.com/{w['username']}/){rating_part}{liked_part}{date_part}"
+            line = f"• [{watcher.letterboxd_username}](https://letterboxd.com/{watcher.letterboxd_username}/){rating_part}{liked_part}{date_part}"
             lines.append(line)
 
         embed.description = "\n".join(lines)
@@ -59,13 +65,16 @@ def create_watchers_embed(movie: lb_movie.Movie, watchers: list[dict]) -> discor
 def create_diary_embed(
     user: lb_user.User, movie: lb_movie.Movie, diary_entry: dict
 ) -> discord.Embed:
-    print(diary_entry)
-
-    print(user)
-
     actions = diary_entry.get("actions", {})
-    url = "https://letterboxd.com" + actions.get("review_link")
-    rating_val = actions.get("rating") / 2  # consistency
+
+    url = actions.get("review_link")
+    if url:
+        url = "https://letterboxd.com" + url
+
+    rating_val = actions.get("rating")
+    if rating_val:
+        rating_val /= 2  # consistency
+
     liked = diary_entry.get("liked", False)
     date = diary_entry.get("date")
     review_text = None
@@ -99,7 +108,6 @@ def create_diary_embed(
     description = f"**Rating:** {rating_part}{liked_part}{repeat_emoji}{date_part}"
 
     if review_text:
-        print(f"review text: '{review_text}'")
         description += f"\n{'―' * 15}\n{review_text}"
 
     embed = discord.Embed(
