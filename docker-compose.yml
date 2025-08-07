@@ -10,7 +10,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   bot:
-    image: ghcr.io/f0e/letterboxd-bot/letterboxd-bot:latest
+    image: ghcr.io/f0e/letterboxd-bot/letterboxd-bot:latest # or :beta
     depends_on:
       - db
     environment:
