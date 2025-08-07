@@ -17,11 +17,11 @@ def create_watchers_embed(
         color=discord.Color.green() if watchers else discord.Color.red(),
     )
 
-    embed.set_footer(
-        text=", ".join(
-            [genre["name"] for genre in movie.genres if genre["type"] == "genre"]
+    if hasattr(movie, "genres"):
+        genres = ", ".join(
+            genre["name"] for genre in movie.genres if genre.get("type") == "genre"
         )
-    )
+        embed.set_footer(text=f"{movie.year} - {genres}")
 
     if movie.poster:
         embed.set_thumbnail(url=movie.poster)
@@ -129,6 +129,6 @@ def create_diary_embed(
             genre["name"] for genre in movie.genres if genre.get("type") == "genre"
         )
         if genres:
-            embed.set_footer(text=genres)
+            embed.set_footer(text=f"{movie.year} - {genres}")
 
     return embed
