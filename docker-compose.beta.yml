@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: letterboxd
+      POSTGRES_USER: letterboxd
+      POSTGRES_PASSWORD: letterboxd
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  bot:
+    image: ghcr.io/f0e/letterboxd-bot/letterboxd-bot:beta
+    depends_on:
+      - db
+    environment:
+      - DISCORD_TOKEN=xxxxxxxxxxxxxxxxxxxx
+      - DATABASE_URL=xxxxxxxxxxxxxxxx
+    restart: unless-stopped
+
+volumes:
+  pgdata:
