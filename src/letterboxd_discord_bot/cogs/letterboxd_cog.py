@@ -70,6 +70,8 @@ class LetterboxdCog(commands.Cog):
         db.add(new_follow)
         db.commit()
 
+        # todo: would be nice to show profile on follow - in case you followed the wrong person
+
         await interaction.followup.send(
             f"✅ Successfully started following `{username}`!"
         )
