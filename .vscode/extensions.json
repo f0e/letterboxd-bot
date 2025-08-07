@@ -1,8 +1,9 @@
 {
   "recommendations": [
-    "ms-python.mypy-type-checker",
-    "tamasfe.even-better-toml",
     "ms-python.python",
-    "charliermarsh.ruff"
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+    "tamasfe.even-better-toml",
+    "detachhead.basedpyright"
   ]
 }
