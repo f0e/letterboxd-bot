@@ -15,11 +15,14 @@ features
 ### setup
 
 create `.env` and fill out
+
 ```
 DISCORD_TOKEN=[discord bot token]
 DATABASE_URL=postgresql://...
 optional: TEST_GUILD_ID=[guild id, allows for realtime slash command updates. use if they're not updating]
 ```
+
+and run `mise run setup`
 
 ### running
 
