@@ -80,7 +80,10 @@ def update_user_films(db: Session, username: str):
             .first()
         )
 
-        rating = watch.get("rating")
+        rating_val = watch.get("rating")
+        if rating_val:
+            rating_val /= 2  # consistency
+
         liked = watch.get("liked")
 
         if existing_watch:
