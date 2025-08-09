@@ -1,11 +1,12 @@
 import asyncio
 
+import discord
 from discord.ext import commands, tasks
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..utils.db_actions import (
-    update_all_user_diaries,
+    collect_diary_updates,
     update_all_user_films,
 )
 
@@ -22,10 +23,20 @@ class TasksCog(commands.Cog):
 
     @tasks.loop(minutes=15)
     async def check_new_films(self):
-        print("Running scheduled check for new films...")
+        print("Running scheduled check for new diary entries...")
 
         db: Session = next(get_db())
-        await asyncio.to_thread(update_all_user_diaries, db, self.bot)
+        updates = await asyncio.to_thread(collect_diary_updates, db, self.bot)
+
+        for update in updates:
+            try:
+                if isinstance(
+                    update.channel,
+                    (discord.TextChannel, discord.Thread, discord.DMChannel),
+                ):
+                    await update.channel.send(embed=update.embed)
+            except Exception as e:
+                print(f"Failed to send message: {e}")
 
         print("Finished checking diaries")
 

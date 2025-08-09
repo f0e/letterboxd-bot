@@ -3,7 +3,7 @@ import datetime
 import discord
 from letterboxdpy import movie as lb_movie  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
-from letterboxdpy.core.scraper import parse_url
+from letterboxdpy.core.scraper import parse_url  # type: ignore
 
 from letterboxd_discord_bot.database import MovieWatch  # type: ignore
 
@@ -75,20 +75,21 @@ def create_diary_embed(
     actions = diary_entry.get("actions", {})
 
     url = actions.get("review_link")
+    review_text = None
+
     if url:
         url = "https://letterboxd.com" + url
+
+        # fetch review text
+        review_dom = parse_url(url)
+        if review_text_elem := review_dom.find("div", class_="js-review-body"):
+            review_text = review_text_elem.text.strip()
     else:
         url = movie.url
 
     rating = actions.get("rating")
     liked = diary_entry.get("liked", False)
     date = diary_entry.get("date")
-    review_text = None
-
-    if url:
-        # fetch review text
-        review_dom = parse_url(url)
-        review_text = review_dom.find("div", class_="js-review-body").text.strip()
 
     repeat_emoji = " 🔁" if actions.get("rewatched") else ""
 
@@ -106,10 +107,7 @@ def create_diary_embed(
     else:
         date_part = ""
 
-    description = f"**Rating:** {rating_part}{liked_part}{repeat_emoji}{date_part}"
-
-    if review_text:
-        description += f"\n{'―' * 15}\n{review_text}"
+    description = f"""**Rating:** {rating_part}{liked_part}{repeat_emoji}"""
 
     embed = discord.Embed(
         title=diary_entry["name"],
@@ -117,6 +115,11 @@ def create_diary_embed(
         color=discord.Color.green(),
         url=url,
     )
+
+    if review_text:
+        embed.add_field(name="Review", value=review_text, inline=False)
+
+    embed.add_field(name="", value=f"-# {date_part}")
 
     poster = diary_entry.get("poster") or getattr(movie, "poster", None)
     if poster:
