@@ -56,14 +56,13 @@ def create_watchers_embed(
                 parts.append(f"<t:{timestamp}:R>")
 
             watch_info = (" - " + " ".join(parts)) if parts else ""
-            line = f"• [{watcher.letterboxd_username}](https://letterboxd.com/{watcher.letterboxd_username}/){watch_info}"
+            line = f"• [{discord.utils.escape_markdown(watcher.letterboxd_username)}](https://letterboxd.com/{watcher.letterboxd_username}/){watch_info}"
             lines.append(line)
 
         embed.description = "\n".join(lines)
-
     else:
         embed.description = (
-            f"None of the users you follow have watched '{movie.title}'."
+            f"Nobody's watched '{discord.utils.escape_markdown(movie.title or '')}'."
         )
 
     return embed
@@ -117,7 +116,11 @@ def create_diary_embed(
     )
 
     if review_text:
-        embed.add_field(name="Review", value=review_text, inline=False)
+        embed.add_field(
+            name="Review",
+            value=discord.utils.escape_markdown(review_text),
+            inline=False,
+        )
 
     embed.add_field(name="", value=f"-# {date_part}")
 
