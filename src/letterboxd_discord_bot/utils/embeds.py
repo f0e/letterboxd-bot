@@ -1,6 +1,7 @@
 import datetime
 
 import discord
+from bs4 import Tag
 from letterboxdpy import movie as lb_movie  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
 from letterboxdpy.core.scraper import parse_url  # type: ignore
@@ -79,34 +80,32 @@ def create_diary_embed(
     if url:
         url = "https://letterboxd.com" + url
 
-        # fetch review text
         review_dom = parse_url(url)
-        if review_text_elem := review_dom.find("div", class_="js-review-body"):
-            review_text = review_text_elem.text.strip()
+        review_text_elem = review_dom.find("div", class_="js-review-body")
+
+        if isinstance(review_text_elem, Tag):
+            # replace <br> with newline characters
+            for br in review_text_elem.find_all("br"):
+                br.replace_with("\n")
+
+            paragraphs = review_text_elem.find_all("p")
+            review_text = "\n\n".join(p.get_text().strip() for p in paragraphs).strip()
     else:
         url = movie.url
 
+    description_parts = []
+
     rating = actions.get("rating")
-    liked = diary_entry.get("liked", False)
-    date = diary_entry.get("date")
-
-    repeat_emoji = " 🔁" if actions.get("rewatched") else ""
-
     if rating is not None:
-        rating_part = f"{get_stars(rating)}"
-    else:
-        rating_part = "Not rated"
+        description_parts.append(f"**Rating:** {get_stars(rating)}")
 
-    liked_part = " ❤️" if liked else ""
+    if actions.get("liked"):
+        description_parts.append("❤️")
 
-    if date:
-        dt = datetime.datetime.combine(date, datetime.time())
-        ts = int(dt.timestamp())
-        date_part = f" <t:{ts}:R>"
-    else:
-        date_part = ""
+    if actions.get("rewatched"):
+        description_parts.append("🔁")
 
-    description = f"""**Rating:** {rating_part}{liked_part}{repeat_emoji}"""
+    description = " ".join(description_parts)
 
     embed = discord.Embed(
         title=diary_entry["name"],
@@ -122,7 +121,11 @@ def create_diary_embed(
             inline=False,
         )
 
-    embed.add_field(name="", value=f"-# {date_part}")
+    date = diary_entry.get("date")
+    if date:
+        dt = datetime.datetime.combine(date, datetime.time())
+        ts = int(dt.timestamp())
+        embed.add_field(name="", value=f"-# <t:{ts}:R>")
 
     poster = diary_entry.get("poster") or getattr(movie, "poster", None)
     if poster:
