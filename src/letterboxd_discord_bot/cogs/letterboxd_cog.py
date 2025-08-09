@@ -221,13 +221,6 @@ class LetterboxdCog(commands.Cog):
                 .all()
             )
 
-            if not watchers:
-                await interaction.followup.send(
-                    f"Nobody's seen [**{movie.title} ({movie.year})**]({movie.url}).",
-                    ephemeral=True,
-                )
-                return
-
             # sort by rating descending
             watchers.sort(
                 key=lambda watcher: (watcher.rating is None, -(watcher.rating or 0))
