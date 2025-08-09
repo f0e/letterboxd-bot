@@ -1,6 +1,5 @@
 import asyncio
 
-import discord
 from discord.ext import commands, tasks
 from sqlalchemy.orm import Session
 
@@ -30,11 +29,7 @@ class TasksCog(commands.Cog):
 
         for update in updates:
             try:
-                if isinstance(
-                    update.channel,
-                    (discord.TextChannel, discord.Thread, discord.DMChannel),
-                ):
-                    await update.channel.send(embed=update.embed)
+                await update.channel.send(embed=update.embed)
             except Exception as e:
                 print(f"Failed to send message: {e}")
 

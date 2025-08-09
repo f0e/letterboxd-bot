@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 import discord
 from discord.ext import commands
@@ -14,7 +15,7 @@ from ..utils.letterboxd_actions import get_diary
 
 @dataclass(frozen=True)
 class DiaryUpdate:
-    channel: discord.guild.GuildChannel
+    channel: Any  # todo: it has bad typing
     embed: discord.Embed
     diary_entry_date: datetime.datetime
 
