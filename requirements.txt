@@ -364,6 +364,13 @@ sqlalchemy==2.0.42 \
     --hash=sha256:eb9905f7f1e49fd57a7ed6269bc567fcbbdac9feadff20ad6bd7707266a91577 \
     --hash=sha256:f50f7b20677b23cfb35b6afcd8372b2feb348a38e3033f6447ee0704540be894
     # via letterboxd-discord-bot
+types-beautifulsoup4==4.12.0.20250516 \
+    --hash=sha256:5923399d4a1ba9cc8f0096fe334cc732e130269541d66261bb42ab039c0376ee \
+    --hash=sha256:aa19dd73b33b70d6296adf92da8ab8a0c945c507e6fb7d5db553415cc77b417e
+types-html5lib==1.1.11.20250809 \
+    --hash=sha256:7976ec7426bb009997dc5e072bca3ed988dd747d0cbfe093c7dfbd3d5ec8bf57 \
+    --hash=sha256:e5f48ab670ae4cdeafd88bbc47113d8126dcf08318e0b8d70df26ecc13eca9b6
+    # via types-beautifulsoup4
 typing-extensions==4.14.1 \
     --hash=sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36 \
     --hash=sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76
