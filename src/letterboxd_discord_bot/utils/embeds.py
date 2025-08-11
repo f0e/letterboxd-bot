@@ -74,10 +74,11 @@ def create_diary_embed(
 ) -> discord.Embed:
     actions = diary_entry.get("actions", {})
 
-    url = actions.get("review_link")
+    reviewed = actions.get("reviewed", {})
+    url = actions.get("entry_link")
     review_text = None
 
-    if url:
+    if reviewed and url:
         url = "https://letterboxd.com" + url
 
         review_dom = parse_url(url)
@@ -123,9 +124,12 @@ def create_diary_embed(
 
     date = diary_entry.get("date")
     if date:
-        dt = datetime.datetime.combine(date, datetime.time())
-        ts = int(dt.timestamp())
-        embed.add_field(name="", value=f"-# <t:{ts}:R>")
+        # TODO: bring back relative date when i can get precise datetime of watch. its available on https://letterboxd.com/[user]/film/[slug]/activity/ but not sure where else
+        # dt = datetime.datetime.combine(date, datetime.time())
+        # ts = int(dt.timestamp())
+        # embed.add_field(name="", value=f"-# <t:{ts}:R>")
+        formatted_date = date.strftime("%B %-d")
+        embed.add_field(name="", value=f"-# {formatted_date}")
 
     poster = diary_entry.get("poster") or getattr(movie, "poster", None)
     if poster:
