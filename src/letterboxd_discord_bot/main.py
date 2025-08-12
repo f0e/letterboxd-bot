@@ -15,10 +15,17 @@ intents = discord.Intents.default()
 # intents.members = True
 # intents.message_content = True
 
+allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, users=True)
+
 
 class LetterboxdBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="%", description=description, intents=intents)
+        super().__init__(
+            command_prefix="%",
+            description=description,
+            intents=intents,
+            allowed_mentions=allowed_mentions,
+        )
 
     async def setup_hook(self):
         await tasks_cog.setup(self)
