@@ -6,7 +6,8 @@ from letterboxdpy import movie as lb_movie  # type: ignore
 from letterboxdpy import user as lb_user  # type: ignore
 from letterboxdpy.core.scraper import parse_url  # type: ignore
 
-from letterboxd_discord_bot.database import MovieWatch  # type: ignore
+from ..database import MovieWatch  # type: ignore
+from ..utils.misc import escape
 
 EMOJI_STAR = "<:lb_star:1403009346492698764>"
 EMOJI_STAR_HALF = "<:lb_halfstar:1403009343867191386>"
@@ -57,12 +58,12 @@ def create_watchers_embed(
                 parts.append(f"<t:{timestamp}:R>")
 
             watch_info = (" - " + " ".join(parts)) if parts else ""
-            line = f"• [{discord.utils.escape_markdown(discord.utils.escape_mentions(watcher.letterboxd_username))}](https://letterboxd.com/{watcher.letterboxd_username}/){watch_info}"
+            line = f"• [{escape(watcher.letterboxd_username)}](https://letterboxd.com/{watcher.letterboxd_username}/){watch_info}"
             lines.append(line)
 
         embed.description = "\n".join(lines)
     else:
-        embed.description = f"Nobody's watched '{discord.utils.escape_markdown(discord.utils.escape_mentions(movie.title or ''))}'."
+        embed.description = f"Nobody's watched '{escape(movie.title or '')}'."
 
     return embed
 
@@ -116,9 +117,7 @@ def create_diary_embed(
     if review_text:
         embed.add_field(
             name="Review",
-            value=discord.utils.escape_markdown(
-                discord.utils.escape_mentions(review_text)
-            ),
+            value=escape(review_text),
             inline=False,
         )
 

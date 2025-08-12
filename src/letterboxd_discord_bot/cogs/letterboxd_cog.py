@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from ..database import FollowedUser, MovieWatch, get_db
 from ..utils.embeds import create_watchers_embed
+from ..utils.misc import escape
 
 
 class LetterboxdCog(commands.Cog):
@@ -44,7 +45,7 @@ class LetterboxdCog(commands.Cog):
 
         if existing_follow:
             await interaction.followup.send(
-                f"You are already following `{discord.utils.escape_mentions(username)}` on this server.",
+                f"You are already following `{escape(username)}` on this server.",
                 ephemeral=True,
             )
             db.close()
@@ -53,13 +54,13 @@ class LetterboxdCog(commands.Cog):
         try:
             if not lb_user.User(username).username:
                 await interaction.followup.send(
-                    f"Could not find a Letterboxd user with the username `{discord.utils.escape_mentions(username)}`.",
+                    f"Could not find a Letterboxd user with the username `{escape(username)}`.",
                     ephemeral=True,
                 )
                 return
         except Exception:
             await interaction.followup.send(
-                f"Could not find a Letterboxd user with the username `{discord.utils.escape_mentions(username)}`.",
+                f"Could not find a Letterboxd user with the username `{escape(username)}`.",
                 ephemeral=True,
             )
             return
@@ -75,7 +76,7 @@ class LetterboxdCog(commands.Cog):
         # todo: would be nice to show profile on follow - in case you followed the wrong person
 
         await interaction.followup.send(
-            f"✅ Successfully started following `{discord.utils.escape_mentions(username)}`!"
+            f"✅ Successfully started following `{escape(username)}`!"
         )
         db.close()
 
@@ -107,7 +108,7 @@ class LetterboxdCog(commands.Cog):
 
         if not follow_to_delete:
             await interaction.followup.send(
-                f"You are not currently following `{discord.utils.escape_mentions(username)}` on this server.",
+                f"You are not currently following `{escape(username)}` on this server.",
                 ephemeral=True,
             )
             db.close()
@@ -116,7 +117,7 @@ class LetterboxdCog(commands.Cog):
         db.delete(follow_to_delete)
         db.commit()
         await interaction.followup.send(
-            f"🗑️ Successfully unfollowed `{discord.utils.escape_mentions(username)}`."
+            f"🗑️ Successfully unfollowed `{escape(username)}`."
         )
         db.close()
 
@@ -155,10 +156,7 @@ class LetterboxdCog(commands.Cog):
             return
 
         description = "\n".join(
-            [
-                f"• {discord.utils.escape_markdown(discord.utils.escape_mentions(user.letterboxd_username))}"
-                for user in followed_list
-            ]
+            [f"• {escape(user.letterboxd_username)}" for user in followed_list]
         )
         embed = discord.Embed(
             title=f"Following {len(followed_list)} Letterboxd Users",
@@ -210,7 +208,7 @@ class LetterboxdCog(commands.Cog):
 
             if not search_results:
                 await interaction.followup.send(
-                    f"Could not find a movie matching '{discord.utils.escape_mentions(movie_title)}'. Please try a different title or be more specific.",
+                    f"Could not find a movie matching '{escape(movie_title)}'. Please try a different title or be more specific.",
                     ephemeral=True,
                 )
                 return
