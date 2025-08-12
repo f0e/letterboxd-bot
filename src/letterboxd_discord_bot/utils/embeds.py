@@ -7,7 +7,7 @@ from letterboxdpy import user as lb_user  # type: ignore
 from letterboxdpy.core.scraper import parse_url  # type: ignore
 
 from ..database import MovieWatch  # type: ignore
-from ..utils.misc import escape
+from .misc import escape
 
 EMOJI_STAR = "<:lb_star:1403009346492698764>"
 EMOJI_STAR_HALF = "<:lb_halfstar:1403009343867191386>"
