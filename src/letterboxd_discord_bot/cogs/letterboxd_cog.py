@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -29,20 +31,6 @@ class LetterboxdCog(commands.Cog):
             )
             return
 
-        try:
-            if not lb_user.User(username).username:
-                await interaction.followup.send(
-                    f"Could not find a Letterboxd user with the username `{username}`.",
-                    ephemeral=True,
-                )
-                return
-        except Exception:
-            await interaction.followup.send(
-                f"Could not find a Letterboxd user with the username `{username}`.",
-                ephemeral=True,
-            )
-            return
-
         db: Session = next(get_db())
         existing_follow = (
             db.query(FollowedUser)
@@ -56,10 +44,24 @@ class LetterboxdCog(commands.Cog):
 
         if existing_follow:
             await interaction.followup.send(
-                f"You are already following `{username}` on this server.",
+                f"You are already following `{discord.utils.escape_mentions(username)}` on this server.",
                 ephemeral=True,
             )
             db.close()
+            return
+
+        try:
+            if not lb_user.User(username).username:
+                await interaction.followup.send(
+                    f"Could not find a Letterboxd user with the username `{discord.utils.escape_mentions(username)}`.",
+                    ephemeral=True,
+                )
+                return
+        except Exception:
+            await interaction.followup.send(
+                f"Could not find a Letterboxd user with the username `{discord.utils.escape_mentions(username)}`.",
+                ephemeral=True,
+            )
             return
 
         new_follow = FollowedUser(
@@ -73,7 +75,7 @@ class LetterboxdCog(commands.Cog):
         # todo: would be nice to show profile on follow - in case you followed the wrong person
 
         await interaction.followup.send(
-            f"✅ Successfully started following `{username}`!"
+            f"✅ Successfully started following `{discord.utils.escape_mentions(username)}`!"
         )
         db.close()
 
@@ -105,7 +107,7 @@ class LetterboxdCog(commands.Cog):
 
         if not follow_to_delete:
             await interaction.followup.send(
-                f"You are not currently following `{username}` on this server.",
+                f"You are not currently following `{discord.utils.escape_mentions(username)}` on this server.",
                 ephemeral=True,
             )
             db.close()
@@ -113,7 +115,9 @@ class LetterboxdCog(commands.Cog):
 
         db.delete(follow_to_delete)
         db.commit()
-        await interaction.followup.send(f"🗑️ Successfully unfollowed `{username}`.")
+        await interaction.followup.send(
+            f"🗑️ Successfully unfollowed `{discord.utils.escape_mentions(username)}`."
+        )
         db.close()
 
     @app_commands.command(
@@ -151,7 +155,10 @@ class LetterboxdCog(commands.Cog):
             return
 
         description = "\n".join(
-            [f"• {user.letterboxd_username}" for user in followed_list]
+            [
+                f"• {discord.utils.escape_markdown(discord.utils.escape_mentions(user.letterboxd_username))}"
+                for user in followed_list
+            ]
         )
         embed = discord.Embed(
             title=f"Following {len(followed_list)} Letterboxd Users",
@@ -198,12 +205,12 @@ class LetterboxdCog(commands.Cog):
                 )
                 return
 
-            query = lb_search.Search(movie_title, "films")
+            query = lb_search.Search(quote(movie_title), "films")
             search_results = query.get_results(max=1)["results"]
 
             if not search_results:
                 await interaction.followup.send(
-                    f"Could not find a movie matching '{movie_title}'. Please try a different title or be more specific.",
+                    f"Could not find a movie matching '{discord.utils.escape_mentions(movie_title)}'. Please try a different title or be more specific.",
                     ephemeral=True,
                 )
                 return
