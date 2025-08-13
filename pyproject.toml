@@ -31,4 +31,4 @@ dev = [
 lint.extend-select = ["I"] # enable import sorting
 
 [tool.uv.sources]
-letterboxdpy = { git = "https://github.com/f0e/letterboxdpy.git", branch = "discord-bot" }
+letterboxdpy = { git = "https://github.com/f0e/letterboxdpy.git" }
