@@ -1,0 +1,4 @@
+{
+  "shellcheck.executablePath": "/Users/gkoy/.local/share/mise/shims/shellcheck",
+  "python.defaultInterpreterPath": "/Users/gkoy/.local/share/mise/installs/python/3.13.2/bin/python"
+}
