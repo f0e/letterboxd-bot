@@ -108,19 +108,15 @@ def create_diary_embed(
 
     description = " ".join(description_parts)
 
+    if review_text:
+        description += "\n\n**Review**\n" + escape(review_text)
+
     embed = discord.Embed(
         title=diary_entry["name"],
         description=description,
         color=discord.Color.green(),
         url=url,
     )
-
-    if review_text:
-        embed.add_field(
-            name="Review",
-            value=escape(review_text),
-            inline=False,
-        )
 
     date = diary_entry.get("date")
     if date:
