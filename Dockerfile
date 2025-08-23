@@ -10,4 +10,4 @@ ADD . /app
 WORKDIR /app
 RUN uv sync --locked
 
-CMD ["uv", "run", "bot"] 
+CMD ["uv", "run", "bot"]
