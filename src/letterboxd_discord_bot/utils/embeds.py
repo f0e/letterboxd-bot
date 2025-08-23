@@ -74,7 +74,8 @@ def create_diary_embed(
     actions = diary_entry.get("actions", {})
 
     reviewed = actions.get("reviewed", {})
-    url = actions.get("entry_link")
+
+    url = diary_entry.get("entry_link")
     review_text = None
 
     if reviewed and url:
