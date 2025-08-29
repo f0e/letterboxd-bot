@@ -132,7 +132,9 @@ def create_diary_embed(
         embed.set_thumbnail(url=poster)
 
     avatar_url = user.avatar.get("url")
-    embed.set_author(name=f"{user.display_name} watched", icon_url=avatar_url)
+    embed.set_author(
+        name=f"{user.display_name} watched", icon_url=avatar_url, url=user.url
+    )
 
     if hasattr(movie, "genres"):
         genres = ", ".join(
