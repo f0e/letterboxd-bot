@@ -220,7 +220,7 @@ class LetterboxdCog(commands.Cog):
             watchers = (
                 db.query(MovieWatch)
                 .filter(
-                    MovieWatch.movie_id == movie.letterboxd_id,
+                    MovieWatch.movie_id == movie.id,
                     MovieWatch.letterboxd_username.in_(followed_usernames),
                 )
                 .all()
