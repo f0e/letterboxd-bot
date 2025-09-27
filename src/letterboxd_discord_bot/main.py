@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from rich import print
 
 from . import config
-from .cogs import letterboxd_cog, tasks_cog
+from .cogs import admin_cog, letterboxd_cog, tasks_cog
 from .database import create_tables
 
-description = """Hello bro"""
+description = """Letterboxd bot"""
 
 load_dotenv()
 
@@ -28,8 +28,9 @@ class LetterboxdBot(commands.Bot):
         )
 
     async def setup_hook(self):
+        await admin_cog.setup(self)
         await tasks_cog.setup(self)
-        await letterboxd_cog.setup(self, config.TEST_GUILD_ID)
+        await letterboxd_cog.setup(self)
 
         print("Cogs initialised")
 

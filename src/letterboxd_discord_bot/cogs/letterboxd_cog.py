@@ -238,14 +238,6 @@ class LetterboxdCog(commands.Cog):
             db.close()
 
 
-async def setup(bot: commands.Bot, TEST_GUILD_ID=None):
+async def setup(bot: commands.Bot):
     cog = LetterboxdCog(bot)
     await bot.add_cog(cog)
-
-    if TEST_GUILD_ID:
-        guild = discord.Object(id=TEST_GUILD_ID)
-        bot.tree.add_command(cog.follow, guild=guild)
-        bot.tree.add_command(cog.unfollow, guild=guild)
-        bot.tree.add_command(cog.following, guild=guild)
-        bot.tree.add_command(cog.whowatched, guild=guild)
-        await bot.tree.sync(guild=guild)
