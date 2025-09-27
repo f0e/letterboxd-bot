@@ -17,7 +17,7 @@ certifi==2025.8.3
     # via requests
 charset-normalizer==3.4.3
     # via requests
-discord-py==2.6.0
+discord-py==2.6.3
     # via letterboxd-discord-bot
 frozenlist==1.7.0
     # via
@@ -41,7 +41,7 @@ multidict==6.6.4
     # via
     #   aiohttp
     #   yarl
-mypy==1.17.1
+mypy==1.18.2
 mypy-extensions==1.1.0
     # via mypy
 pathspec==0.12.1
@@ -59,15 +59,15 @@ requests==2.31.0
     # via letterboxdpy
 rich==14.1.0
     # via letterboxd-discord-bot
-ruff==0.12.10
-soupsieve==2.7
+ruff==0.13.2
+soupsieve==2.8
     # via beautifulsoup4
 sqlalchemy==2.0.43
     # via letterboxd-discord-bot
 types-beautifulsoup4==4.12.0.20250516
-types-html5lib==1.1.11.20250809
+types-html5lib==1.1.11.20250917
     # via types-beautifulsoup4
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   mypy
     #   sqlalchemy
